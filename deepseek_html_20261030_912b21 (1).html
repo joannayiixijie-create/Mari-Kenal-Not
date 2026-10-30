@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuba Kenal Not</title>
+<style>
+  :root{
+    --ink:#1e1b4b;
+    --muted:#64748b;
+    --violet:#7c3aed;
+    --blue:#2563eb;
+    --pink:#ec4899;
+    --cyan:#06b6d4;
+    --green:#10b981;
+    --amber:#f59e0b;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    background:
+      radial-gradient(circle at 8% 12%, #c7d2fe 0%, transparent 42%),
+      radial-gradient(circle at 92% 8%, #fbcfe8 0%, transparent 40%),
+      radial-gradient(circle at 15% 88%, #a7f3d0 0%, transparent 45%),
+      radial-gradient(circle at 85% 92%, #fde68a 0%, transparent 42%),
+      linear-gradient(160deg,#f8faff 0%,#fdf4fb 45%,#f0fdf4 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:22px 16px 52px;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .app{width:100%;max-width:680px;position:relative;z-index:1;}
+
+  /* floating decorations */
+  .deco{
+    position:fixed;
+    pointer-events:none;
+    user-select:none;
+    opacity:.13;
+    font-size:2.6rem;
+    animation:float 8s ease-in-out infinite;
+    z-index:0;
+    filter:drop-shadow(0 4px 10px rgba(124,58,237,.25));
+  }
+  .deco:nth-child(1){top:9%;left:4%;animation-delay:0s;color:#7c3aed;}
+  .deco:nth-child(2){top:26%;right:6%;animation-delay:1.3s;font-size:1.9rem;color:#ec4899;}
+  .deco:nth-child(3){bottom:15%;left:6%;animation-delay:2.5s;font-size:3rem;color:#06b6d4;}
+  .deco:nth-child(4){bottom:9%;right:8%;animation-delay:1s;color:#f59e0b;}
+  .deco:nth-child(5){top:48%;right:3%;animation-delay:3.4s;font-size:1.6rem;color:#10b981;}
+  @keyframes float{
+    0%,100%{transform:translateY(0) rotate(-5deg);}
+    50%{transform:translateY(-20px) rotate(7deg);}
+  }
+
+  /* ---------- Header ---------- */
+  .hero{
+    background:linear-gradient(120deg,#4f46e5 0%,#7c3aed 32%,#db2777 68%,#f59e0b 100%);
+    background-size:200% 200%;
+    animation:heroShift 10s ease infinite;
+    color:#fff;
+    border-radius:28px;
+    padding:22px 24px;
+    box-shadow:0 16px 40px rgba(124,58,237,.32);
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  @keyframes heroShift{
+    0%,100%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    width:220px;height:220px;
+    background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%);
+    border-radius:50%;
+    top:-90px;right:-70px;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    width:160px;height:160px;
+    background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);
+    border-radius:50%;
+    bottom:-70px;left:-40px;
+  }
+  .hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:relative;z-index:1;}
+  .hero-badge{
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:2.6px;
+    font-weight:800;
+    opacity:.9;
+  }
+  .hero h1{
+    margin:10px 0 8px;
+    font-size:1.85rem;
+    letter-spacing:.5px;
+    position:relative;z-index:1;
+    text-shadow:0 2px 12px rgba(0,0,0,.15);
+  }
+  .hero p{margin:0;opacity:.96;font-size:.96rem;line-height:1.6;position:relative;z-index:1;}
+
+  .music-btn{
+    position:relative;z-index:1;
+    font-family:inherit;
+    font-size:.82rem;
+    font-weight:800;
+    padding:10px 17px;
+    border-radius:99px;
+    border:1.5px solid rgba(255,255,255,.6);
+    background:rgba(255,255,255,.18);
+    color:#fff;
+    cursor:pointer;
+    transition:background .18s, transform .12s, box-shadow .18s;
+    white-space:nowrap;
+    backdrop-filter:blur(6px);
+    box-shadow:0 4px 14px rgba(0,0,0,.12);
+  }
+  .music-btn:hover{background:rgba(255,255,255,.32);transform:translateY(-1px);}
+  .music-btn.playing{background:#fff;color:#6d28d9;border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.25);}
+  .music-btn.pulse{animation:musicPulse 1.6s ease-in-out infinite;}
+  @keyframes musicPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.55);}
+    50%{box-shadow:0 0 0 8px rgba(255,255,255,0);}
+  }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);
+    border-radius:26px;
+    padding:18px 20px 20px;
+    box-shadow:
+      0 12px 34px rgba(79,70,229,.12),
+      0 2px 8px rgba(79,70,229,.06);
+    margin-bottom:16px;
+    border:1.5px solid rgba(139,92,246,.14);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:26px;
+    padding:1.5px;
+    background:linear-gradient(135deg,rgba(124,58,237,.35),rgba(236,72,153,.25),rgba(6,182,212,.3));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    pointer-events:none;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:10px;
+    font-weight:800;font-size:.86rem;color:var(--muted);
+  }
+  .track{
+    flex:1;height:10px;
+    background:#eef2ff;
+    border-radius:99px;overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(79,70,229,.12);
+  }
+  .fill{
+    height:100%;width:0;
+    background:linear-gradient(90deg,#06b6d4,#3b82f6,#7c3aed,#ec4899,#f59e0b);
+    background-size:200% 100%;
+    animation:barShine 3s linear infinite;
+    border-radius:99px;
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes barShine{
+    0%{background-position:0% 50%;}
+    100%{background-position:200% 50%;}
+  }
+
+  /* ---------- Staff ---------- */
+  .staff-wrap{
+    background:
+      radial-gradient(circle at 20% 20%, rgba(196,181,253,.22), transparent 55%),
+      radial-gradient(circle at 85% 75%, rgba(251,207,232,.25), transparent 55%),
+      linear-gradient(160deg,#fbfaff 0%,#f5f3ff 50%,#fff7fb 100%);
+    border-radius:20px;
+    padding:4px 2px;
+    border:1.5px solid rgba(165,180,252,.3);
+    box-shadow:inset 0 2px 10px rgba(124,58,237,.05);
+  }
+  .staff{width:100%;height:auto;display:block;}
+
+  /* ---------- Options ---------- */
+  .options{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:13px;
+    margin-top:18px;
+  }
+  .option{
+    font-family:inherit;
+    font-size:1.5rem;
+    font-weight:900;
+    padding:18px 8px;
+    border-radius:18px;
+    border:2.5px solid #e0e7ff;
+    background:linear-gradient(180deg,#ffffff,#f7f8ff);
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .13s ease, background .2s, border-color .2s, box-shadow .2s;
+    box-shadow:0 4px 0 #e0e7ff;
+    position:relative;
+    overflow:hidden;
+  }
+  .option::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,rgba(124,58,237,.07),rgba(6,182,212,.07));
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .option:hover:not(:disabled)::before{opacity:1;}
+  .option:hover:not(:disabled){
+    border-color:#a5b4fc;
+    transform:translateY(-3px);
+    box-shadow:0 7px 0 #c7d2fe, 0 12px 24px rgba(99,102,241,.18);
+  }
+  .option:active:not(:disabled){transform:translateY(0);box-shadow:0 2px 0 #c7d2fe;}
+  .option:disabled{cursor:default;}
+
+  .option.correct{
+    background:linear-gradient(180deg,#ecfdf5,#d1fae5);
+    border-color:#10b981;color:#065f46;
+    box-shadow:0 4px 0 #a7f3d0, 0 0 0 4px rgba(16,185,129,.15);
+    animation:pop .4s ease;
+  }
+  .option.correct::after{
+    content:"✓";
+    position:absolute;
+    top:4px;right:9px;
+    font-size:.9rem;
+    color:#10b981;
+    font-weight:900;
+  }
+  .option.wrong{
+    background:linear-gradient(180deg,#fef2f2,#fee2e2);
+    border-color:#ef4444;color:#991b1b;
+    box-shadow:0 4px 0 #fecaca, 0 0 0 4px rgba(239,68,68,.12);
+    animation:shake .4s ease;
+  }
+  .option.wrong::after{
+    content:"✕";
+    position:absolute;
+    top:4px;right:9px;
+    font-size:.9rem;
+    color:#ef4444;
+    font-weight:900;
+  }
+  @keyframes pop{
+    0%{transform:scale(1);}
+    45%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    60%{transform:translateX(6px);}
+  }
+
+  /* ---------- Feedback ---------- */
+  .feedback{
+    margin-top:16px;
+    border-radius:18px;
+    padding:0 16px;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:opacity .28s ease, max-height .32s ease, padding .32s ease;
+  }
+  .feedback.show{padding:15px 17px;max-height:420px;opacity:1;}
+  .feedback.ok{
+    background:linear-gradient(135deg,#f0fdf4,#ecfdf5);
+    border:1.5px solid #6ee7b7;
+    box-shadow:0 4px 16px rgba(16,185,129,.12);
+  }
+  .feedback.bad{
+    background:linear-gradient(135deg,#fef2f2,#fff1f2);
+    border:1.5px solid #fca5a5;
+    box-shadow:0 4px 16px rgba(239,68,68,.10);
+  }
+  .fb-title{font-weight:900;margin-bottom:7px;font-size:1rem;}
+  .feedback.ok .fb-title{color:#047857;}
+  .feedback.bad .fb-title{color:#b91c1c;}
+  .fb-text{font-size:.93rem;line-height:1.7;color:#334155;}
+  .fb-text strong{color:var(--ink);font-weight:800;}
+  .fb-text .not-chip{
+    display:inline-block;
+    background:linear-gradient(135deg,#ede9fe,#dbeafe);
+    color:#5b21b6;
+    font-weight:900;
+    padding:1px 9px;
+    border-radius:8px;
+    margin:0 2px;
+    border:1px solid #c7d2fe;
+  }
+
+  /* ---------- Next button ---------- */
+  .next{
+    display:block;width:100%;margin-top:16px;
+    padding:16px;
+    border:none;border-radius:17px;
+    background:linear-gradient(120deg,#2563eb,#7c3aed 50%,#db2777);
+    background-size:180% 180%;
+    color:#fff;font-family:inherit;font-size:1.04rem;font-weight:900;
+    cursor:pointer;
+    box-shadow:0 10px 26px rgba(124,58,237,.38);
+    transition:transform .13s ease, box-shadow .13s ease, background-position .4s;
+    letter-spacing:.2px;
+  }
+  .next:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 32px rgba(124,58,237,.46);
+    background-position:100% 50%;
+  }
+  .next:active{transform:translateY(1px);}
+
+  /* ---------- Result ---------- */
+  .result{text-align:center;padding:36px 22px 30px;}
+  .result .big-emoji{font-size:4rem;line-height:1;animation:pop .6s ease;}
+  .score-big{
+    font-size:3.6rem;font-weight:900;
+    background:linear-gradient(120deg,#06b6d4,#2563eb,#7c3aed,#ec4899,#f59e0b);
+    background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:heroShift 6s ease infinite;
+    margin:12px 0 0;
+    letter-spacing:-1px;
+  }
+  .score-label{font-size:.94rem;color:var(--muted);font-weight:800;margin-bottom:16px;letter-spacing:.5px;}
+  .result h2{margin:0 0 9px;font-size:1.4rem;}
+  .result p{margin:0 0 26px;color:var(--muted);line-height:1.7;font-size:.96rem;}
+
+  [hidden]{display:none !important;}
+
+  @media(max-width:430px){
+    .options{gap:9px;}
+    .option{font-size:1.28rem;padding:15px 4px;}
+    .hero h1{font-size:1.5rem;}
+    .hero{padding:19px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- decorative floating notes -->
+<div class="deco">♪</div>
+<div class="deco">♫</div>
+<div class="deco">♩</div>
+<div class="deco">♬</div>
+<div class="deco">𝄞</div>
+
+<div class="app">
+
+  <!-- ===== Header ===== -->
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-badge">🎼 Teori Muzik</div>
+      <button class="music-btn pulse" id="musicBtn" type="button">▶ Main Muzik</button>
+    </div>
+    <h1>Cuba Kenal Not</h1>
+    <p>Lihat kedudukan kepala not pada baluk. Pilih nama not yang betul.</p>
+  </header>
+
+  <!-- ===== Quiz ===== -->
+  <section id="quiz">
+    <div class="card">
+      <div class="progress">
+        <span id="qnum">Soalan 1 / 5</span>
+        <div class="track"><div class="fill" id="barfill"></div></div>
+      </div>
+
+      <div class="staff-wrap" id="staff"></div>
+
+      <div class="options" id="options"></div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <button class="next" id="nextBtn" hidden>Seterusnya →</button>
+    </div>
+  </section>
+
+  <!-- ===== Result ===== -->
+  <section id="result" class="card result" hidden>
+    <div class="big-emoji" id="resEmoji">🏆</div>
+    <div class="score-big" id="resScore">5 / 5</div>
+    <div class="score-label">Jawapan betul</div>
+    <h2 id="resTitle">Cemerlang!</h2>
+    <p id="resMsg"></p>
+    <button class="next" id="restartBtn">🔄 Cuba Lagi</button>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   1. DATA NOT — kedudukan tepat pada baluk
+   Garisan (bawah → atas): 126, 106(G), 86(B), 66(D), 46
+   Ruang                 : 116, 96(A), 76(C′), 56
+   ========================================================= */
+const NOTE_INFO = {
+  'G' : { y: 106, pos: 'garisan kedua dari bawah'  },
+  'A' : { y:  96, pos: 'ruang kedua dari bawah'    },
+  'B' : { y:  86, pos: 'garisan ketiga dari bawah' },
+  'C′': { y:  76, pos: 'ruang ketiga dari bawah'   },
+  'D′': { y:  66, pos: 'garisan keempat dari bawah'}
+};
+
+const QUESTIONS = [
+  { note:'B',  options:['A','B','C′']  },
+  { note:'A',  options:['G','A','D′']  },
+  { note:'D′', options:['B','C′','D′'] },
+  { note:'G',  options:['G','A','B']   },
+  { note:'C′', options:['A','C′','D′'] }
+];
+
+/* =========================================================
+   2. SEMAK FONT MUSIK
+   ========================================================= */
+function supportsTrebleClef(){
+  try{
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.font = '100px "Noto Music","Segoe UI Symbol","Apple Symbols","Bravura","Symbola",serif';
+    return ctx.measureText('𝄞').width > 30;
+  }catch(e){ return false; }
+}
+const HAS_CLEF_FONT = supportsTrebleClef();
+
+/* Fallback path jika font musik tiada (jarang berlaku) */
+const CLEF_FALLBACK_PATH = `
+  M 72,152
+  C 60,152 52,144 53,134
+  C 54,124 61,116 67,108
+  C 73,100 76,92 76,84
+  C 76,75 70,69 62,69
+  C 54,69 48,76 48,84
+  C 48,92 54,98 62,98
+  C 70,98 76,92 76,84
+  C 76,74 71,66 63,60
+  C 55,54 46,53 42,61
+  C 38,69 42,78 49,84
+  C 56,90 64,96 70,104
+  C 76,112 80,120 78,129
+  C 76,138 68,142 61,140
+`;
+
+/* =========================================================
+   3. LUKIS BALUK + KLEF TREBLE + NOT KROCET
+   ========================================================= */
+function staffSVG(noteName){
+  const info   = NOTE_INFO[noteName];
+  const y      = info.y;
+  const lineYs = [46, 66, 86, 106, 126];   // 5 garisan baluk
+
+  /* --- 5 garisan --- */
+  const lines = lineYs.map(ly => `
+    <line x1="14" y1="${ly}" x2="346" y2="${ly}"
+          stroke="#8b93b8" stroke-width="1.8" stroke-linecap="round"/>
+  `).join('');
+
+  /* ---------------------------------------------------------
+     KLEF TREBLE (G clef)
+     Spiral klef mesti berada pada GARISAN KE-2 DARI BAWAH
+     (garisan G) iaitu y = 106.
+
+     ⚙️ 微调区：如果 klef 还偏高/偏低，只改下面这个数字：
+        CLEF_SHIFT = 0   表示当前位置
+        CLEF_SHIFT = 10  向下移 10px
+        CLEF_SHIFT = -10 向上移 10px
+     --------------------------------------------------------- */
+  const CLEF_SHIFT = 0;
+
+  const clefFont = `
+    <g transform="translate(0,${CLEF_SHIFT})">
+      <text x="74" y="124"
+            font-size="116"
+            text-anchor="middle"
+            font-family="'Noto Music','Segoe UI Symbol','Apple Symbols','Bravura','Symbola',serif"
+            fill="url(#clefGrad)"
+            filter="url(#clefGlow)"
+            pointer-events="none">𝄞</text>
+    </g>`;
+
+  const clefPath = `
+    <g transform="translate(0,${CLEF_SHIFT - 12})">
+      <path d="${CLEF_FALLBACK_PATH}"
+            fill="none"
+            stroke="url(#clefGrad)"
+            stroke-width="5.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            filter="url(#clefGlow)"/>
+    </g>`;
+
+  const clef = HAS_CLEF_FONT ? clefFont : clefPath;
+
+  /* --- Not Krocet (crotchet) ---
+     1 kepala not + 1 tangkai.
+     Tangkai: bawah garis tengah (y>86) → atas ; atas/sama (y<=86) → bawah. */
+  const HEAD_X = 248;
+  const stemUp = y > 86;
+  const stemX  = stemUp ? HEAD_X + 9.4 : HEAD_X - 9.4;
+  const stemY1 = stemUp ? y - 1   : y + 1;
+  const stemY2 = stemUp ? y - 58  : y + 58;
+
+  const crotchet = `
+    <ellipse cx="${HEAD_X}" cy="${y}" rx="9.8" ry="7.2"
+             fill="url(#noteGrad)"
+             transform="rotate(-20 ${HEAD_X} ${y})"/>
+    <line x1="${stemX}" y1="${stemY1}" x2="${stemX}" y2="${stemY2}"
+          stroke="#312e81" stroke-width="2.9" stroke-linecap="round"/>`;
+
+  return `<svg class="staff" viewBox="0 0 360 182"
+               xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-label="Baluk dengan satu not krocet">
+    <defs>
+      <linearGradient id="clefGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#7c3aed"/>
+        <stop offset="48%"  stop-color="#2563eb"/>
+        <stop offset="100%" stop-color="#06b6d4"/>
+      </linearGradient>
+      <linearGradient id="noteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#4338ca"/>
+        <stop offset="55%"  stop-color="#7c3aed"/>
+        <stop offset="100%" stop-color="#db2777"/>
+      </linearGradient>
+      <filter id="clefGlow" x="-30%" y="-20%" width="160%" height="150%">
+        <feGaussianBlur stdDeviation="2.4" result="b"/>
+        <feMerge>
+          <feMergeNode in="b"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    ${lines}
+    ${clef}
+    ${crotchet}
+  </svg>`;
+}
+
+/* =========================================================
+   4. AUDIO ENGINE (muzik latar + kesan bunyi)
+   ========================================================= */
+let audioCtx     = null;
+let masterGain   = null;
+
+function ensureAudio(){
+  if (!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    audioCtx   = new AC();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.62;
+    masterGain.connect(audioCtx.destination);
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return true;
+}
+
+/* --- bunyi asas --- */
+function playNote(freq, time, dur, vol){
+  if (!audioCtx) return;
+
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const g2   = audioCtx.createGain();
+  const gain = audioCtx.createGain();
+  const filt = audioCtx.createBiquadFilter();
+
+  osc1.type = 'sine';
+  osc1.frequency.value = freq;
+  osc2.type = 'triangle';
+  osc2.frequency.value = freq * 2;
+
+  g2.gain.value = 0.22;
+  osc2.connect(g2);
+  g2.connect(filt);
+  osc1.connect(filt);
+
+  filt.type = 'lowpass';
+  filt.frequency.value = 3200;
+
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(vol, time + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+
+  filt.connect(gain);
+  gain.connect(masterGain);
+
+  osc1.start(time);  osc2.start(time);
+  osc1.stop(time + dur + 0.05);
+  osc2.stop(time + dur + 0.05);
+}
+
+function playHat(time, vol){
+  if (!audioCtx) return;
+  const len    = Math.floor(audioCtx.sampleRate * 0.045);
+  const buffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+  const data   = buffer.getChannelData(0);
+  for (let i = 0; i < len; i++){
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 9);
+  }
+  const src  = audioCtx.createBufferSource();
+  src.buffer = buffer;
+  const gain = audioCtx.createGain();
+  gain.gain.value = vol;
+  const hp = audioCtx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 7000;
+  src.connect(hp);
+  hp.connect(gain);
+  gain.connect(masterGain);
+  src.start(time);
+}
+
+/* --- kesan bunyi (SFX) --- */
+function playSfx(freq, time, dur, vol, type, cutoff){
+  if (!audioCtx) return;
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const filt = audioCtx.createBiquadFilter();
+
+  osc.type = type || 'sine';
+  osc.frequency.setValueAtTime(freq, time);
+
+  filt.type = 'lowpass';
+  filt.frequency.value = cutoff || 4000;
+
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(vol, time + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+
+  osc.connect(filt);
+  filt.connect(gain);
+  gain.connect(masterGain);
+  osc.start(time);
+  osc.stop(time + dur + 0.04);
+}
+
+/* ✅ bunyi betul — arpeggio naik ceria */
+function soundCorrect(){
+  if (!ensureAudio()) return;
+  const t = audioCtx.currentTime + 0.02;
+  const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+  notes.forEach((f, i) => {
+    playSfx(f, t + i * 0.075, 0.26, 0.16, 'sine', 6000);
+  });
+}
+
+/* ❌ bunyi salah — dua not rendah menurun */
+function soundWrong(){
+  if (!ensureAudio()) return;
+  const t = audioCtx.currentTime + 0.02;
+  playSfx(233.08, t,        0.16, 0.15, 'square',  900); // Bb3
+  playSfx(174.61, t + 0.15, 0.30, 0.15, 'square',  800); // F3
+}
+
+/* 🏆 bunyi tamat */
+function soundFinish(){
+  if (!ensureAudio()) return;
+  const t = audioCtx.currentTime + 0.02;
+  const seq = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+  seq.forEach((f, i) => {
+    playSfx(f, t + i * 0.095, 0.30, 0.15, 'sine', 6500);
+  });
+  [523.25, 659.25, 783.99].forEach(f => {
+    playSfx(f, t + 0.55, 0.75, 0.10, 'triangle', 4000);
+  });
+}
+
+/* --- muzik latar --- */
+const BPM    = 132;
+const EIGHTH = 60 / BPM / 2;
+
+const MELODY = [
+  523.25, null, 659.25, null, 783.99, 659.25, 523.25, null,
+  440.00, null, 523.25, null, 659.25, null, 523.25, null,
+  349.23, null, 440.00, null, 523.25, 440.00, 349.23, null,
+  392.00, null, 493.88, null, 587.33, null, 493.88, null
+];
+const BASS = [261.63, 220.00, 174.61, 196.00];
+
+let musicOn      = false;
+let musicTimer   = null;
+let musicStep    = 0;
+let nextNoteTime = 0;
+
+function scheduleMusic(){
+  if (!musicOn || !audioCtx) return;
+
+  const now = audioCtx.currentTime;
+  if (nextNoteTime < now) nextNoteTime = now + 0.06;
+
+  while (nextNoteTime < now + 0.4){
+    const step = musicStep % MELODY.length;
+    const note = MELODY[step];
+
+    if (note) playNote(note, nextNoteTime, 0.26, 0.17);
+
+    if (step % 8 === 0){
+      const bassFreq = BASS[Math.floor(step / 8) % BASS.length];
+      playNote(bassFreq, nextNoteTime, 0.55, 0.11);
+    }
+
+    if (step % 2 === 0) playHat(nextNoteTime, 0.035);
+
+    musicStep++;
+    nextNoteTime += EIGHTH;
+  }
+
+  musicTimer = setTimeout(scheduleMusic, 90);
+}
+
+function startMusic(){
+  if (!ensureAudio()) return;
+  if (musicOn) return;
+
+  musicOn      = true;
+  musicStep    = 0;
+  nextNoteTime = audioCtx.currentTime + 0.12;
+  scheduleMusic();
+
+  musicBtn.textContent = '❚❚ Hentikan Muzik';
+  musicBtn.classList.add('playing');
+  musicBtn.classList.remove('pulse');
+}
+
+function stopMusic(){
+  musicOn = false;
+  if (musicTimer){ clearTimeout(musicTimer); musicTimer = null; }
+  musicBtn.textContent = '▶ Main Muzik';
+  musicBtn.classList.remove('playing');
+  musicBtn.classList.add('pulse');
+}
+
+/* =========================================================
+   5. LOGIK PERMAINAN
+   ========================================================= */
+const els = {
+  quiz    : document.getElementById('quiz'),
+  result  : document.getElementById('result'),
+  qnum    : document.getElementById('qnum'),
+  barfill : document.getElementById('barfill'),
+  staff   : document.getElementById('staff'),
+  options : document.getElementById('options'),
+  feedback: document.getElementById('feedback'),
+  nextBtn : document.getElementById('nextBtn'),
+  restart : document.getElementById('restartBtn'),
+  resEmoji: document.getElementById('resEmoji'),
+  resScore: document.getElementById('resScore'),
+  resTitle: document.getElementById('resTitle'),
+  resMsg  : document.getElementById('resMsg')
+};
+const musicBtn = document.getElementById('musicBtn');
+
+let queue  = [];
+let idx    = 0;
+let score  = 0;
+let locked = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame(){
+  queue = shuffle(QUESTIONS);
+  idx   = 0;
+  score = 0;
+  els.result.hidden = true;
+  els.quiz.hidden   = false;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const q = queue[idx];
+
+  els.qnum.textContent = `Soalan ${idx + 1} / ${queue.length}`;
+  els.barfill.style.width = `${(idx / queue.length) * 100}%`;
+  els.staff.innerHTML = staffSVG(q.note);
+
+  els.feedback.className = 'feedback';
+  els.feedback.innerHTML = '';
+  els.nextBtn.hidden = true;
+
+  const opts = shuffle(q.options);
+  els.options.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.type = 'button';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => answer(btn, opt, q));
+    els.options.appendChild(btn);
+  });
+}
+
+function answer(btn, chosen, q){
+  if (locked) return;
+  locked = true;
+
+  const isCorrect = (chosen === q.note);
+  if (isCorrect) score++;
+
+  /* 🔊 音效：答对 / 答错 */
+  if (isCorrect) soundCorrect();
+  else           soundWrong();
+
+  [...els.options.children].forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.note) b.classList.add('correct');
+  });
+  if (!isCorrect) btn.classList.add('wrong');
+
+  const info = NOTE_INFO[q.note];
+  els.feedback.className = 'feedback show ' + (isCorrect ? 'ok' : 'bad');
+  els.feedback.innerHTML = `
+    <div class="fb-title">${isCorrect ? '✅ Betul!' : '❌ Belum tepat'}</div>
+    <div class="fb-text">
+      Not ini ialah <span class="not-chip">${q.note}</span> kerana kepala not terletak pada
+      <strong>${info.pos}</strong>.<br>
+      Jika belum pasti, lihat semula kad Not <strong>${q.note}</strong>.
+    </div>`;
+
+  els.nextBtn.hidden = false;
+  els.nextBtn.textContent =
+    (idx === queue.length - 1) ? 'Lihat keputusan →' : 'Soalan seterusnya →';
+
+  els.barfill.style.width = `${((idx + 1) / queue.length) * 100}%`;
+}
+
+function showResult(){
+  els.quiz.hidden   = true;
+  els.result.hidden = false;
+
+  const total = queue.length;
+  els.resScore.textContent = `${score} / ${total}`;
+
+  if (score === total){
+    els.resEmoji.textContent = '🏆';
+    els.resTitle.textContent = 'Cemerlang!';
+    els.resMsg.textContent   = 'Kamu sudah kenal kelima-lima not dengan tepat. Hebat!';
+  } else if (score >= 3){
+    els.resEmoji.textContent = '🎉';
+    els.resTitle.textContent = 'Bagus sekali!';
+    els.resMsg.textContent   = 'Hampir sempurna. Cuba sekali lagi untuk mendapat skor penuh.';
+  } else {
+    els.resEmoji.textContent = '💪';
+    els.resTitle.textContent = 'Jangan putus asa!';
+    els.resMsg.textContent   = 'Lihat semula kad Not G, A, B, C′ dan D′, kemudian cuba lagi.';
+  }
+
+  /* 🏆 结算音效 */
+  soundFinish();
+}
+
+/* =========================================================
+   6. EVENT
+   ========================================================= */
+els.nextBtn.addEventListener('click', () => {
+  if (idx < queue.length - 1){
+    idx++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+
+els.restart.addEventListener('click', startGame);
+
+musicBtn.addEventListener('click', () => {
+  if (musicOn) stopMusic();
+  else         startMusic();
+});
+
+/* 首次互动时激活 AudioContext（浏览器自动播放策略） */
+document.addEventListener('pointerdown', function firstInteraction(){
+  ensureAudio();
+  document.removeEventListener('pointerdown', firstInteraction);
+}, {once:true});
+
+/* mula */
+startGame();
+</script>
+</body>
+</html>
